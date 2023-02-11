@@ -9,7 +9,7 @@ use osmosis_std_derive::CosmwasmExt;
     schemars::JsonSchema,
     CosmwasmExt,
 )]
-#[proto_message(type_url = "/osmosis.swaprouter.v1beta1.SwapAmountInRoute")]
+#[proto_message(type_url = "/osmosis.poolmanager.v1beta1.SwapAmountInRoute")]
 pub struct SwapAmountInRoute {
     #[prost(uint64, tag = "1")]
     #[serde(
@@ -30,7 +30,7 @@ pub struct SwapAmountInRoute {
     schemars::JsonSchema,
     CosmwasmExt,
 )]
-#[proto_message(type_url = "/osmosis.swaprouter.v1beta1.SwapAmountOutRoute")]
+#[proto_message(type_url = "/osmosis.poolmanager.v1beta1.SwapAmountOutRoute")]
 pub struct SwapAmountOutRoute {
     #[prost(uint64, tag = "1")]
     #[serde(
@@ -41,9 +41,83 @@ pub struct SwapAmountOutRoute {
     #[prost(string, tag = "2")]
     pub token_in_denom: ::prost::alloc::string::String,
 }
+/// ===================== MsgSwapExactAmountIn
+#[derive(
+    Clone,
+    PartialEq,
+    Eq,
+    ::prost::Message,
+    serde::Serialize,
+    serde::Deserialize,
+    schemars::JsonSchema,
+    CosmwasmExt,
+)]
+#[proto_message(type_url = "/osmosis.poolmanager.v1beta1.MsgSwapExactAmountIn")]
+pub struct MsgSwapExactAmountIn {
+    #[prost(string, tag = "1")]
+    pub sender: ::prost::alloc::string::String,
+    #[prost(message, repeated, tag = "2")]
+    pub routes: ::prost::alloc::vec::Vec<SwapAmountInRoute>,
+    #[prost(message, optional, tag = "3")]
+    pub token_in: ::core::option::Option<super::super::super::cosmos::base::v1beta1::Coin>,
+    #[prost(string, tag = "4")]
+    pub token_out_min_amount: ::prost::alloc::string::String,
+}
+#[derive(
+    Clone,
+    PartialEq,
+    Eq,
+    ::prost::Message,
+    serde::Serialize,
+    serde::Deserialize,
+    schemars::JsonSchema,
+    CosmwasmExt,
+)]
+#[proto_message(type_url = "/osmosis.poolmanager.v1beta1.MsgSwapExactAmountInResponse")]
+pub struct MsgSwapExactAmountInResponse {
+    #[prost(string, tag = "1")]
+    pub token_out_amount: ::prost::alloc::string::String,
+}
+/// ===================== MsgSwapExactAmountOut
+#[derive(
+    Clone,
+    PartialEq,
+    Eq,
+    ::prost::Message,
+    serde::Serialize,
+    serde::Deserialize,
+    schemars::JsonSchema,
+    CosmwasmExt,
+)]
+#[proto_message(type_url = "/osmosis.poolmanager.v1beta1.MsgSwapExactAmountOut")]
+pub struct MsgSwapExactAmountOut {
+    #[prost(string, tag = "1")]
+    pub sender: ::prost::alloc::string::String,
+    #[prost(message, repeated, tag = "2")]
+    pub routes: ::prost::alloc::vec::Vec<SwapAmountOutRoute>,
+    #[prost(string, tag = "3")]
+    pub token_in_max_amount: ::prost::alloc::string::String,
+    #[prost(message, optional, tag = "4")]
+    pub token_out: ::core::option::Option<super::super::super::cosmos::base::v1beta1::Coin>,
+}
+#[derive(
+    Clone,
+    PartialEq,
+    Eq,
+    ::prost::Message,
+    serde::Serialize,
+    serde::Deserialize,
+    schemars::JsonSchema,
+    CosmwasmExt,
+)]
+#[proto_message(type_url = "/osmosis.poolmanager.v1beta1.MsgSwapExactAmountOutResponse")]
+pub struct MsgSwapExactAmountOutResponse {
+    #[prost(string, tag = "1")]
+    pub token_in_amount: ::prost::alloc::string::String,
+}
 /// ModuleRouter defines a route encapsulating pool type.
 /// It is used as the value of a mapping from pool id to the pool type,
-/// allowing the swap router to know which module to route swaps to given the
+/// allowing the pool manager to know which module to route swaps to given the
 /// pool id.
 #[derive(
     Clone,
@@ -55,7 +129,7 @@ pub struct SwapAmountOutRoute {
     schemars::JsonSchema,
     CosmwasmExt,
 )]
-#[proto_message(type_url = "/osmosis.swaprouter.v1beta1.ModuleRoute")]
+#[proto_message(type_url = "/osmosis.poolmanager.v1beta1.ModuleRoute")]
 pub struct ModuleRoute {
     /// pool_type specifies the type of the pool
     #[prost(enumeration = "PoolType", tag = "1")]
@@ -78,7 +152,7 @@ pub enum PoolType {
     /// defined in x/concentrated-liquidity.
     Concentrated = 2,
 }
-/// Params holds parameters for the swaprouter module
+/// Params holds parameters for the poolmanager module
 #[derive(
     Clone,
     PartialEq,
@@ -89,13 +163,13 @@ pub enum PoolType {
     schemars::JsonSchema,
     CosmwasmExt,
 )]
-#[proto_message(type_url = "/osmosis.swaprouter.v1beta1.Params")]
+#[proto_message(type_url = "/osmosis.poolmanager.v1beta1.Params")]
 pub struct Params {
     #[prost(message, repeated, tag = "1")]
     pub pool_creation_fee:
         ::prost::alloc::vec::Vec<super::super::super::cosmos::base::v1beta1::Coin>,
 }
-/// GenesisState defines the swaprouter module's genesis state.
+/// GenesisState defines the poolmanager module's genesis state.
 #[derive(
     Clone,
     PartialEq,
@@ -106,7 +180,7 @@ pub struct Params {
     schemars::JsonSchema,
     CosmwasmExt,
 )]
-#[proto_message(type_url = "/osmosis.swaprouter.v1beta1.GenesisState")]
+#[proto_message(type_url = "/osmosis.poolmanager.v1beta1.GenesisState")]
 pub struct GenesisState {
     /// the next_pool_id
     #[prost(uint64, tag = "1")]
@@ -115,83 +189,9 @@ pub struct GenesisState {
         deserialize_with = "crate::serde::as_str::deserialize"
     )]
     pub next_pool_id: u64,
-    /// params is the container of swaprouter parameters.
+    /// params is the container of poolmanager parameters.
     #[prost(message, optional, tag = "2")]
     pub params: ::core::option::Option<Params>,
-}
-/// ===================== MsgSwapExactAmountIn
-#[derive(
-    Clone,
-    PartialEq,
-    Eq,
-    ::prost::Message,
-    serde::Serialize,
-    serde::Deserialize,
-    schemars::JsonSchema,
-    CosmwasmExt,
-)]
-#[proto_message(type_url = "/osmosis.swaprouter.v1beta1.MsgSwapExactAmountIn")]
-pub struct MsgSwapExactAmountIn {
-    #[prost(string, tag = "1")]
-    pub sender: ::prost::alloc::string::String,
-    #[prost(message, repeated, tag = "2")]
-    pub routes: ::prost::alloc::vec::Vec<SwapAmountInRoute>,
-    #[prost(message, optional, tag = "3")]
-    pub token_in: ::core::option::Option<super::super::super::cosmos::base::v1beta1::Coin>,
-    #[prost(string, tag = "4")]
-    pub token_out_min_amount: ::prost::alloc::string::String,
-}
-#[derive(
-    Clone,
-    PartialEq,
-    Eq,
-    ::prost::Message,
-    serde::Serialize,
-    serde::Deserialize,
-    schemars::JsonSchema,
-    CosmwasmExt,
-)]
-#[proto_message(type_url = "/osmosis.swaprouter.v1beta1.MsgSwapExactAmountInResponse")]
-pub struct MsgSwapExactAmountInResponse {
-    #[prost(string, tag = "1")]
-    pub token_out_amount: ::prost::alloc::string::String,
-}
-/// ===================== MsgSwapExactAmountOut
-#[derive(
-    Clone,
-    PartialEq,
-    Eq,
-    ::prost::Message,
-    serde::Serialize,
-    serde::Deserialize,
-    schemars::JsonSchema,
-    CosmwasmExt,
-)]
-#[proto_message(type_url = "/osmosis.swaprouter.v1beta1.MsgSwapExactAmountOut")]
-pub struct MsgSwapExactAmountOut {
-    #[prost(string, tag = "1")]
-    pub sender: ::prost::alloc::string::String,
-    #[prost(message, repeated, tag = "2")]
-    pub routes: ::prost::alloc::vec::Vec<SwapAmountOutRoute>,
-    #[prost(string, tag = "3")]
-    pub token_in_max_amount: ::prost::alloc::string::String,
-    #[prost(message, optional, tag = "4")]
-    pub token_out: ::core::option::Option<super::super::super::cosmos::base::v1beta1::Coin>,
-}
-#[derive(
-    Clone,
-    PartialEq,
-    Eq,
-    ::prost::Message,
-    serde::Serialize,
-    serde::Deserialize,
-    schemars::JsonSchema,
-    CosmwasmExt,
-)]
-#[proto_message(type_url = "/osmosis.swaprouter.v1beta1.MsgSwapExactAmountOutResponse")]
-pub struct MsgSwapExactAmountOutResponse {
-    #[prost(string, tag = "1")]
-    pub token_in_amount: ::prost::alloc::string::String,
 }
 ///=============================== Params
 #[derive(
@@ -204,9 +204,9 @@ pub struct MsgSwapExactAmountOutResponse {
     schemars::JsonSchema,
     CosmwasmExt,
 )]
-#[proto_message(type_url = "/osmosis.swaprouter.v1beta1.ParamsRequest")]
+#[proto_message(type_url = "/osmosis.poolmanager.v1beta1.ParamsRequest")]
 #[proto_query(
-    path = "/osmosis.swaprouter.v1beta1.Query/Params",
+    path = "/osmosis.poolmanager.v1beta1.Query/Params",
     response_type = ParamsResponse
 )]
 pub struct ParamsRequest {}
@@ -220,7 +220,7 @@ pub struct ParamsRequest {}
     schemars::JsonSchema,
     CosmwasmExt,
 )]
-#[proto_message(type_url = "/osmosis.swaprouter.v1beta1.ParamsResponse")]
+#[proto_message(type_url = "/osmosis.poolmanager.v1beta1.ParamsResponse")]
 pub struct ParamsResponse {
     #[prost(message, optional, tag = "1")]
     pub params: ::core::option::Option<Params>,
@@ -236,9 +236,9 @@ pub struct ParamsResponse {
     schemars::JsonSchema,
     CosmwasmExt,
 )]
-#[proto_message(type_url = "/osmosis.swaprouter.v1beta1.EstimateSwapExactAmountInRequest")]
+#[proto_message(type_url = "/osmosis.poolmanager.v1beta1.EstimateSwapExactAmountInRequest")]
 #[proto_query(
-    path = "/osmosis.swaprouter.v1beta1.Query/EstimateSwapExactAmountIn",
+    path = "/osmosis.poolmanager.v1beta1.Query/EstimateSwapExactAmountIn",
     response_type = EstimateSwapExactAmountInResponse
 )]
 pub struct EstimateSwapExactAmountInRequest {
@@ -266,7 +266,7 @@ pub struct EstimateSwapExactAmountInRequest {
     schemars::JsonSchema,
     CosmwasmExt,
 )]
-#[proto_message(type_url = "/osmosis.swaprouter.v1beta1.EstimateSwapExactAmountInResponse")]
+#[proto_message(type_url = "/osmosis.poolmanager.v1beta1.EstimateSwapExactAmountInResponse")]
 pub struct EstimateSwapExactAmountInResponse {
     #[prost(string, tag = "1")]
     pub token_out_amount: ::prost::alloc::string::String,
@@ -282,9 +282,9 @@ pub struct EstimateSwapExactAmountInResponse {
     schemars::JsonSchema,
     CosmwasmExt,
 )]
-#[proto_message(type_url = "/osmosis.swaprouter.v1beta1.EstimateSwapExactAmountOutRequest")]
+#[proto_message(type_url = "/osmosis.poolmanager.v1beta1.EstimateSwapExactAmountOutRequest")]
 #[proto_query(
-    path = "/osmosis.swaprouter.v1beta1.Query/EstimateSwapExactAmountOut",
+    path = "/osmosis.poolmanager.v1beta1.Query/EstimateSwapExactAmountOut",
     response_type = EstimateSwapExactAmountOutResponse
 )]
 pub struct EstimateSwapExactAmountOutRequest {
@@ -312,7 +312,7 @@ pub struct EstimateSwapExactAmountOutRequest {
     schemars::JsonSchema,
     CosmwasmExt,
 )]
-#[proto_message(type_url = "/osmosis.swaprouter.v1beta1.EstimateSwapExactAmountOutResponse")]
+#[proto_message(type_url = "/osmosis.poolmanager.v1beta1.EstimateSwapExactAmountOutResponse")]
 pub struct EstimateSwapExactAmountOutResponse {
     #[prost(string, tag = "1")]
     pub token_in_amount: ::prost::alloc::string::String,
@@ -328,9 +328,9 @@ pub struct EstimateSwapExactAmountOutResponse {
     schemars::JsonSchema,
     CosmwasmExt,
 )]
-#[proto_message(type_url = "/osmosis.swaprouter.v1beta1.NumPoolsRequest")]
+#[proto_message(type_url = "/osmosis.poolmanager.v1beta1.NumPoolsRequest")]
 #[proto_query(
-    path = "/osmosis.swaprouter.v1beta1.Query/NumPools",
+    path = "/osmosis.poolmanager.v1beta1.Query/NumPools",
     response_type = NumPoolsResponse
 )]
 pub struct NumPoolsRequest {}
@@ -344,7 +344,7 @@ pub struct NumPoolsRequest {}
     schemars::JsonSchema,
     CosmwasmExt,
 )]
-#[proto_message(type_url = "/osmosis.swaprouter.v1beta1.NumPoolsResponse")]
+#[proto_message(type_url = "/osmosis.poolmanager.v1beta1.NumPoolsResponse")]
 pub struct NumPoolsResponse {
     #[prost(uint64, tag = "1")]
     #[serde(
@@ -353,10 +353,10 @@ pub struct NumPoolsResponse {
     )]
     pub num_pools: u64,
 }
-pub struct SwaprouterQuerier<'a, Q: cosmwasm_std::CustomQuery> {
+pub struct PoolmanagerQuerier<'a, Q: cosmwasm_std::CustomQuery> {
     querier: &'a cosmwasm_std::QuerierWrapper<'a, Q>,
 }
-impl<'a, Q: cosmwasm_std::CustomQuery> SwaprouterQuerier<'a, Q> {
+impl<'a, Q: cosmwasm_std::CustomQuery> PoolmanagerQuerier<'a, Q> {
     pub fn new(querier: &'a cosmwasm_std::QuerierWrapper<'a, Q>) -> Self {
         Self { querier }
     }
